@@ -1,10 +1,12 @@
 import { FileVideo, Image as ImageIcon, Link as LinkIcon, Download } from 'lucide-react';
 import Link from 'next/link';
-import dbConnect from '@/lib/db';
+import { connectDB } from "@/lib/mongodb";
 import Content from '@/models/Content';
 
+export const dynamic = "force-dynamic";
+
 async function getStats() {
-    await dbConnect();
+    await connectDB();
     const videos = await Content.countDocuments({ type: 'video' });
     const photos = await Content.countDocuments({ type: 'photo' });
     const programs = await Content.countDocuments({ type: 'program' });

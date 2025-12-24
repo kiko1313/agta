@@ -1,8 +1,10 @@
 import Link from 'next/link';
 import { Play, Download, ExternalLink, ArrowRight } from 'lucide-react';
-import dbConnect from '@/lib/db';
+import { connectDB } from "@/lib/mongodb";
 import Content, { IContent } from '@/models/Content';
 import { Metadata } from 'next';
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: 'AGTALIST - Premium Content Platform',
@@ -10,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 async function getData() {
-  await dbConnect();
+  await connectDB();
   // Fetch latest 10 videos
   const videos = await Content.find({ type: 'video' }).sort({ createdAt: -1 }).limit(10).lean();
   // Fetch latest 20 photos

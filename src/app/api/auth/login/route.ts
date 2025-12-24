@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import dbConnect from '@/lib/db';
+import { connectDB } from "@/lib/mongodb";
 import Admin from '@/models/Admin';
 import { signToken } from '@/lib/auth';
 import bcrypt from 'bcryptjs';
 
 export async function POST(req: NextRequest) {
     try {
-        await dbConnect();
+        await connectDB();
         const { username, password } = await req.json();
 
         // Check against Environment Variables for initial setup or fallback

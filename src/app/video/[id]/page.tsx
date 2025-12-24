@@ -1,5 +1,7 @@
-import dbConnect from '@/lib/db';
+import { connectDB } from "@/lib/mongodb";
 import Content from '@/models/Content';
+
+export const dynamic = "force-dynamic";
 import { notFound } from 'next/navigation';
 import { Download, Share2, ThumbsUp } from 'lucide-react';
 import { Metadata, ResolvingMetadata } from 'next';
@@ -10,7 +12,7 @@ interface Props {
 }
 
 async function getVideo(id: string) {
-    await dbConnect();
+    await connectDB();
     try {
         const video = await Content.findById(id).lean();
         if (!video || video.type !== 'video') return null;

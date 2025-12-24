@@ -1,6 +1,8 @@
-import dbConnect from '@/lib/db';
+import { connectDB } from "@/lib/mongodb";
 import Content from '@/models/Content';
 import { Metadata } from 'next';
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
     title: 'Photos - AGTALIST',
@@ -8,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 async function getPhotos() {
-    await dbConnect();
+    await connectDB();
     const photos = await Content.find({ type: 'photo' }).sort({ createdAt: -1 }).limit(50).lean();
     return photos;
 }

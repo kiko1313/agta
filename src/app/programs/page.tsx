@@ -1,7 +1,9 @@
 import { Download } from 'lucide-react';
-import dbConnect from '@/lib/db';
+import { connectDB } from "@/lib/mongodb";
 import Content from '@/models/Content';
 import { Metadata } from 'next';
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
     title: 'Programs & Files - AGTALIST',
@@ -9,7 +11,7 @@ export const metadata: Metadata = {
 };
 
 async function getPrograms() {
-    await dbConnect();
+    await connectDB();
     const programs = await Content.find({ type: 'program' }).sort({ createdAt: -1 }).limit(50).lean();
     return programs;
 }

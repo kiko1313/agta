@@ -1,8 +1,10 @@
+import { Metadata } from 'next';
 import Link from 'next/link';
 import { Play } from 'lucide-react';
-import dbConnect from '@/lib/db';
+import { connectDB } from "@/lib/mongodb";
 import Content from '@/models/Content';
-import { Metadata } from 'next';
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
     title: 'Videos - AGTALIST',
@@ -10,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 async function getVideos() {
-    await dbConnect();
+    await connectDB();
     // Fetch up to 50 videos for now (pagination can be added later via API)
     const videos = await Content.find({ type: 'video' }).sort({ createdAt: -1 }).limit(50).lean();
     return videos;

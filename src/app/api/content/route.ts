@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import dbConnect from '@/lib/db';
+import { connectDB } from "@/lib/mongodb";
 import Content from '@/models/Content';
 import { isAuthenticated } from '@/lib/auth';
 
@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        await dbConnect();
+        await connectDB();
         const body = await req.json();
 
         // Basic validation
