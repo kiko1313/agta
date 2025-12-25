@@ -4,6 +4,7 @@ import { useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FileVideo, Image as ImageIcon, Link as LinkIcon, Download, UploadCloud, CheckCircle, AlertCircle } from 'lucide-react';
+import { UploadButton } from '@/utils/uploadthing';
 
 function UploadForm() {
     const searchParams = useSearchParams();
@@ -79,8 +80,8 @@ function UploadForm() {
                             key={tab.id}
                             onClick={() => setType(tab.id)}
                             className={`flex items-center gap-2 px-6 py-3 rounded-xl transition-all ${isActive
-                                    ? 'bg-red-600 text-white shadow-lg shadow-red-900/30'
-                                    : 'bg-gray-900 text-gray-400 hover:bg-gray-800'
+                                ? 'bg-red-600 text-white shadow-lg shadow-red-900/30'
+                                : 'bg-gray-900 text-gray-400 hover:bg-gray-800'
                                 }`}
                         >
                             <Icon size={18} />
@@ -134,15 +135,28 @@ function UploadForm() {
                             </label>
                             <input
                                 type="url"
-                                required
+                                required={!formData.url}
                                 value={formData.url}
                                 onChange={(e) => setFormData({ ...formData, url: e.target.value })}
                                 className="w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-white focus:ring-2 focus:ring-red-500 outline-none"
                                 placeholder="https://..."
                             />
-                            <p className="text-xs text-gray-500">
-                                Paste the direct link to the video, image, or file.
-                            </p>
+                            <div className="flex items-center gap-2 text-xs text-gray-500">
+                                <span>Paste a URL above, or</span>
+                                <UploadButton
+                                    endpoint={type === 'video' ? 'videoUploader' : type === 'photo' ? 'imageUploader' : 'pdfUploader'}
+                                    onClientUploadComplete={(res) => {
+                                        if (res && res[0]) {
+                                            setFormData({ ...formData, url: res[0].url });
+                                            setMessage({ type: 'success', text: 'File uploaded successfully!' });
+                                        }
+                                    }}
+                                    onUploadError={(error: Error) => {
+                                        setMessage({ type: 'error', text: `Upload failed: ${error.message}` });
+                                    }}
+                                    className="ut-button:bg-red-600 ut-button:hover:bg-red-700 ut-button:text-sm ut-button:py-2 ut-button:px-4 ut-button:rounded-lg"
+                                />
+                            </div>
                         </div>
 
                         {(type === 'video' || type === 'program' || type === 'link') && (
