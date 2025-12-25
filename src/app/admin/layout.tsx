@@ -13,22 +13,9 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     // Actually, we can't redirect easily in async layout without potential issues if headers sent.
     // Just let the middleware handle redirects, but let's assume middleware exists or will be created.
     // For now, I'll add a simple check.
-    const isAuth = await isAuthenticated();
-
-    if (!isAuth) {
-        // If we are already on login page or its children, don't redirect (handled by matcher)
-        // But since this layout wraps /admin, we assume /admin/login is OUTSIDE this layout or handled properly.
-        // Wait, typically /admin/login is inside /admin?
-        // If /admin/login uses this layout, we get infinite loop.
-        // Best practice: Move login to /login or separate group (auth)/login
-        // OR: check if path is /admin/login in Middleware.
-        // I will assume /admin/login is NOT using this layout if I put this layout in (dashboard) group,
-        // or I just handle it carefully.
-        // Let's rely on Middleware for redirection and just render children here.
-        // Wait, if I'm not authenticated, I shouldn't see the dashboard layout.
-    }
-
-    // To avoid complication, I will create middleware.ts to protect /admin routes EXCEPT /admin/login
+    // Simplified layout. Middleware handles protection.
+    // We render the sidebar for all admin pages.
+    // If we want to hide it on login, we'd need a different layout group, but for now we keep it simple.
     return (
         <div className="flex min-h-screen bg-black text-white">
             {/* Sidebar */}

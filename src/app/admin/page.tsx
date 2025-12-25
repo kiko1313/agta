@@ -28,11 +28,25 @@ async function getAllContent() {
 }
 
 export default async function AdminDashboard() {
-    const stats = await getStats();
-    const allContent = await getAllContent();
+    let stats = { videos: 0, photos: 0, programs: 0, links: 0, totalViews: 0 };
+    let allContent = [];
+    let error = null;
+
+    try {
+        stats = await getStats();
+        allContent = await getAllContent();
+    } catch (e: any) {
+        console.error("Dashboard data fetch failed:", e);
+        error = "Failed to load dashboard data. Please check database connection.";
+    }
 
     return (
         <div className="space-y-8">
+            {error && (
+                <div className="p-4 bg-red-900/50 border border-red-800 text-red-200 rounded-lg">
+                    {error}
+                </div>
+            )}
             <div>
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
                     Dashboard Overview
