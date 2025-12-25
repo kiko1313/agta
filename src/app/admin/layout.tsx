@@ -1,6 +1,6 @@
-import { redirect } from 'next/navigation';
 'use client';
 
+import { redirect } from 'next/navigation';
 import { isAuthenticated } from '@/lib/auth';
 import { ReactNode } from 'react';
 import Link from 'next/link';
