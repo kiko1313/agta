@@ -155,13 +155,15 @@ function UploadForm() {
                                             const formData = new FormData();
                                             formData.append('file', file);
 
-                                            const endpoint = type === 'video' ? 'videoUploader' : type === 'photo' ? 'imageUploader' : 'pdfUploader';
-                                            const res = await fetch(`/api/uploadthing?slug=${endpoint}`, {
+                                            const res = await fetch('/api/upload', {
                                                 method: 'POST',
                                                 body: formData,
                                             });
 
-                                            if (!res.ok) throw new Error('Upload failed');
+                                            if (!res.ok) {
+                                                const errorData = await res.json();
+                                                throw new Error(errorData.details || 'Upload failed');
+                                            }
 
                                             const data = await res.json();
                                             if (data.url) {
@@ -169,7 +171,7 @@ function UploadForm() {
                                                 setMessage({ type: 'success', text: 'File uploaded successfully!' });
                                             }
                                         } catch (error) {
-                                            setMessage({ type: 'error', text: 'Upload failed. Please try again.' });
+                                            setMessage({ type: 'error', text: `Upload failed: ${error instanceof Error ? error.message : 'Please try again'}` });
                                         } finally {
                                             setLoading(false);
                                         }
