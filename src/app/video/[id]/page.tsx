@@ -57,23 +57,29 @@ export default async function VideoPage({ params }: Props) {
 
     // Helper to get embed URL
     const getEmbedUrl = (url: string) => {
+        // Normalize the URL (add https:// if missing, handle youtube.com vs www.youtube.com)
+        let normalizedUrl = url.trim();
+        if (!normalizedUrl.startsWith('http')) {
+            normalizedUrl = 'https://' + normalizedUrl;
+        }
+
         // Handle YouTube watch URLs (with query parameters)
-        if (url.includes('youtube.com/watch')) {
-            const videoId = url.split('v=')[1]?.split('&')[0];
+        if (normalizedUrl.includes('youtube.com/watch')) {
+            const videoId = normalizedUrl.split('v=')[1]?.split('&')[0];
             if (videoId) return `https://www.youtube.com/embed/${videoId}`;
         }
-        // Handle YouTube Shorts
-        if (url.includes('youtube.com/shorts/')) {
-            const videoId = url.split('shorts/')[1]?.split('?')[0];
+        // Handle YouTube Shorts (with or without www.)
+        if (normalizedUrl.includes('youtube.com/shorts/')) {
+            const videoId = normalizedUrl.split('shorts/')[1]?.split('?')[0]?.split('&')[0];
             if (videoId) return `https://www.youtube.com/embed/${videoId}`;
         }
         // Handle short YouTube URLs (youtu.be)
-        if (url.includes('youtu.be/')) {
-            const videoId = url.split('youtu.be/')[1]?.split('?')[0];
+        if (normalizedUrl.includes('youtu.be/')) {
+            const videoId = normalizedUrl.split('youtu.be/')[1]?.split('?')[0]?.split('&')[0];
             if (videoId) return `https://www.youtube.com/embed/${videoId}`;
         }
         // If already an embed URL or not YouTube, return as-is
-        return url;
+        return normalizedUrl;
     };
 
     return (
