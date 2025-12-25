@@ -57,12 +57,22 @@ export default async function VideoPage({ params }: Props) {
 
     // Helper to get embed URL
     const getEmbedUrl = (url: string) => {
-        if (url.includes('youtube.com/watch?v=')) {
-            return url.replace('watch?v=', 'embed/');
+        // Handle YouTube watch URLs (with query parameters)
+        if (url.includes('youtube.com/watch')) {
+            const videoId = url.split('v=')[1]?.split('&')[0];
+            if (videoId) return `https://www.youtube.com/embed/${videoId}`;
         }
+        // Handle YouTube Shorts
+        if (url.includes('youtube.com/shorts/')) {
+            const videoId = url.split('shorts/')[1]?.split('?')[0];
+            if (videoId) return `https://www.youtube.com/embed/${videoId}`;
+        }
+        // Handle short YouTube URLs (youtu.be)
         if (url.includes('youtu.be/')) {
-            return url.replace('youtu.be/', 'www.youtube.com/embed/');
+            const videoId = url.split('youtu.be/')[1]?.split('?')[0];
+            if (videoId) return `https://www.youtube.com/embed/${videoId}`;
         }
+        // If already an embed URL or not YouTube, return as-is
         return url;
     };
 
