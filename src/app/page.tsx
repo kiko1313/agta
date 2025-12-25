@@ -12,17 +12,21 @@ export const metadata: Metadata = {
 };
 
 async function getData() {
-  await connectDB();
-  // Fetch latest 10 videos
-  const videos = await Content.find({ type: 'video' }).sort({ createdAt: -1 }).limit(10).lean();
-  // Fetch latest 20 photos
-  const photos = await Content.find({ type: 'photo' }).sort({ createdAt: -1 }).limit(20).lean();
-  // Fetch latest 6 programs
-  const programs = await Content.find({ type: 'program' }).sort({ createdAt: -1 }).limit(6).lean();
-  // Fetch latest 3 links
-  const links = await Content.find({ type: 'link' }).sort({ createdAt: -1 }).limit(3).lean();
+  try {
+    await connectDB();
+    const [videos, photos, programs, links] = await Promise.all([
+      Content.find({ type: 'video' }).sort({ createdAt: -1 }).limit(10).lean(),
+      Content.find({ type: 'photo' }).sort({ createdAt: -1 }).limit(20).lean(),
+      Content.find({ type: 'program' }).sort({ createdAt: -1 }).limit(6).lean(),
+      Content.find({ type: 'link' }).sort({ createdAt: -1 }).limit(3).lean()
+    ]);
 
-  return { videos, photos, programs, links };
+    return { videos, photos, programs, links };
+  } catch (error) {
+    console.error("Failed to fetch data:", error);
+    // Return empty arrays so the page doesn't crash
+    return { videos: [], photos: [], programs: [], links: [] };
+  }
 }
 
 export default async function Home() {
