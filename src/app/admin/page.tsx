@@ -2,6 +2,7 @@ import { FileVideo, Image as ImageIcon, Link as LinkIcon, Download } from 'lucid
 import Link from 'next/link';
 import { connectDB } from "@/lib/mongodb";
 import Content from '@/models/Content';
+import ContentList from '@/components/ContentList';
 
 export const dynamic = "force-dynamic";
 
@@ -16,8 +17,19 @@ async function getStats() {
     return { videos, photos, programs, links, totalViews: totalViews[0]?.total || 0 };
 }
 
+async function getAllContent() {
+    await connectDB();
+    const content = await Content.find({})
+        .sort({ createdAt: -1 })
+        .limit(100)
+        .lean();
+
+    return JSON.parse(JSON.stringify(content));
+}
+
 export default async function AdminDashboard() {
     const stats = await getStats();
+    const allContent = await getAllContent();
 
     return (
         <div className="space-y-8">
@@ -55,6 +67,14 @@ export default async function AdminDashboard() {
                     </Link>
                 </div>
             </div>
+
+            <div className="mt-12">
+                <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-xl font-bold text-white">All Content</h2>
+                    <span className="text-sm text-gray-500">{allContent.length} items</span>
+                </div>
+                <ContentList initialContent={allContent} />
+            </div>
         </div>
     );
 }
@@ -70,3 +90,4 @@ function StatCard({ title, count, icon }: { title: string, count: number, icon: 
         </div>
     );
 }
+
