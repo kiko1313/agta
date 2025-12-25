@@ -1,4 +1,6 @@
 import { redirect } from 'next/navigation';
+'use client';
+
 import { isAuthenticated } from '@/lib/auth';
 import { ReactNode } from 'react';
 import Link from 'next/link';
@@ -36,12 +38,19 @@ export default async function AdminLayout({ children }: { children: ReactNode })
                 </nav>
 
                 <div className="p-4 border-t border-gray-800">
-                    <form action="/api/auth/logout" method="POST">
-                        <button type="submit" className="flex items-center gap-3 w-full px-4 py-3 text-sm text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-all">
-                            <LogOut size={20} />
-                            <span>Logout</span>
-                        </button>
-                    </form>
+                    <button
+                        onClick={async () => {
+                            const res = await fetch('/api/auth/logout', { method: 'POST' });
+                            const data = await res.json();
+                            if (data.redirectTo) {
+                                window.location.href = data.redirectTo;
+                            }
+                        }}
+                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-all"
+                    >
+                        <LogOut size={20} />
+                        <span>Logout</span>
+                    </button>
                 </div>
             </aside>
 
