@@ -4,7 +4,6 @@ import { useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FileVideo, Image as ImageIcon, Link as LinkIcon, Download, UploadCloud, CheckCircle, AlertCircle } from 'lucide-react';
-import { UploadButton } from '@/utils/uploadthing';
 
 function UploadForm() {
     const searchParams = useSearchParams();
@@ -135,26 +134,47 @@ function UploadForm() {
                             </label>
                             <input
                                 type="url"
-                                required={!formData.url}
                                 value={formData.url}
                                 onChange={(e) => setFormData({ ...formData, url: e.target.value })}
                                 className="w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-white focus:ring-2 focus:ring-red-500 outline-none"
                                 placeholder="https://..."
                             />
-                            <div className="flex items-center gap-2 text-xs text-gray-500">
-                                <span>Paste a URL above, or</span>
-                                <UploadButton
-                                    endpoint={type === 'video' ? 'videoUploader' : type === 'photo' ? 'imageUploader' : 'pdfUploader'}
-                                    onClientUploadComplete={(res) => {
-                                        if (res && res[0]) {
-                                            setFormData({ ...formData, url: res[0].url });
-                                            setMessage({ type: 'success', text: 'File uploaded successfully!' });
+                            <div className="space-y-2">
+                                <p className="text-xs text-gray-500">Paste a URL above, or upload from your PC:</p>
+                                <input
+                                    type="file"
+                                    accept={type === 'video' ? 'video/*' : type === 'photo' ? 'image/*' : '.pdf,.zip,.exe'}
+                                    onChange={async (e) => {
+                                        const file = e.target.files?.[0];
+                                        if (!file) return;
+
+                                        setLoading(true);
+                                        setMessage({ type: 'success', text: 'Uploading file...' });
+
+                                        try {
+                                            const formData = new FormData();
+                                            formData.append('file', file);
+
+                                            const endpoint = type === 'video' ? 'videoUploader' : type === 'photo' ? 'imageUploader' : 'pdfUploader';
+                                            const res = await fetch(`/api/uploadthing?slug=${endpoint}`, {
+                                                method: 'POST',
+                                                body: formData,
+                                            });
+
+                                            if (!res.ok) throw new Error('Upload failed');
+
+                                            const data = await res.json();
+                                            if (data.url) {
+                                                setFormData(prev => ({ ...prev, url: data.url }));
+                                                setMessage({ type: 'success', text: 'File uploaded successfully!' });
+                                            }
+                                        } catch (error) {
+                                            setMessage({ type: 'error', text: 'Upload failed. Please try again.' });
+                                        } finally {
+                                            setLoading(false);
                                         }
                                     }}
-                                    onUploadError={(error: Error) => {
-                                        setMessage({ type: 'error', text: `Upload failed: ${error.message}` });
-                                    }}
-                                    className="ut-button:bg-red-600 ut-button:hover:bg-red-700 ut-button:text-sm ut-button:py-2 ut-button:px-4 ut-button:rounded-lg"
+                                    className="w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-red-600 file:text-white hover:file:bg-red-700 cursor-pointer"
                                 />
                             </div>
                         </div>
