@@ -113,22 +113,17 @@ export default async function VideoPage({ params }: Props) {
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         />
                     ) : (
-                        // Check if it's an image instead of a video
-                        /\.(jpg|jpeg|png|gif|webp|bmp)$/i.test(normalizedMediaUrl) ? (
-                            <img src={normalizedMediaUrl} alt={video.title} className="w-full h-full object-contain" />
-                        ) : (
-                            <video
-                                controls
-                                playsInline
-                                preload="metadata"
-                                className="w-full h-full"
-                                poster={video.thumbnailUrl}
-                                crossOrigin="anonymous"
-                            >
-                                <source src={normalizedMediaUrl} type={videoMime} />
-                                Your browser does not support the video tag.
-                            </video>
-                        )
+                        <video
+                            controls
+                            playsInline
+                            preload="metadata"
+                            className="w-full h-full"
+                            poster={video.thumbnailUrl}
+                            crossOrigin="anonymous"
+                        >
+                            <source src={normalizedMediaUrl} type={videoMime} />
+                            Your browser does not support the video tag.
+                        </video>
                     )}
                 </div>
 

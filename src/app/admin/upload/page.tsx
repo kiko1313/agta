@@ -232,7 +232,23 @@ function UploadForm() {
                                     onClientUploadComplete={(res) => {
                                         if (res?.[0]?.url) {
                                             const uploadedUrl = res[0].url;
-                                            setFormData(prev => ({ ...prev, url: uploadedUrl }));
+                                            const fileName = res[0].name || uploadedUrl;
+                                            
+                                            // Auto-detect content type from file extension
+                                            const isImage = /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(fileName);
+                                            const isVideo = /\.(mp4|webm|mov|avi|mkv|m4v)$/i.test(fileName);
+                                            const isProgram = /\.(exe|dmg|zip|rar|7z|msi|pkg|deb|rpm|apk)$/i.test(fileName);
+                                            
+                                            // Auto-switch type based on uploaded file
+                                            if (isImage && type !== 'photo') {
+                                                setType('photo');
+                                            } else if (isVideo && type !== 'video') {
+                                                setType('video');
+                                            } else if (isProgram && type !== 'program') {
+                                                setType('program');
+                                            }
+                                            
+                                            setFormData(prev => ({ ...prev, url: uploadedUrl }))
 
                                             if (type === 'video') {
                                                 const yt = getYouTubeId(uploadedUrl);
