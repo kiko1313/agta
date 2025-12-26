@@ -121,7 +121,9 @@ function UploadForm() {
             setFormData({ title: '', description: '', url: '', thumbnailUrl: '', category: 'General', tags: '', fileSize: '' });
             router.refresh();
         } catch (error) {
-            setMessage({ type: 'error', text: 'Error uploading content. Please try again.' });
+            const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+            setMessage({ type: 'error', text: `Error: ${errorMsg}` });
+            console.error('Upload error:', error);
         } finally {
             setLoading(false);
         }
