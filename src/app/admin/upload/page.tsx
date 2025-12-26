@@ -204,7 +204,7 @@ function UploadForm() {
                                 {type === 'link' ? 'Destination URL' : 'Content URL / File URL'}
                             </label>
                             <input
-                                type="url"
+                                type="text"
                                 value={formData.url}
                                 onChange={(e) => {
                                     const url = e.target.value;
@@ -222,7 +222,7 @@ function UploadForm() {
                                 className="w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-white focus:ring-2 focus:ring-red-500 outline-none"
                                 placeholder="https://..."
                             />
-                            <div className="space-y-2">
+                            <div className="mt-3">
                                 <UploadButton
                                     endpoint={
                                         type === 'video' ? 'videoUploader' :
@@ -248,7 +248,7 @@ function UploadForm() {
                                                 setType('program');
                                             }
                                             
-                                            setFormData(prev => ({ ...prev, url: uploadedUrl }))
+                                            setFormData(prev => ({ ...prev, url: uploadedUrl }));
 
                                             if (type === 'video') {
                                                 const yt = getYouTubeId(uploadedUrl);
@@ -279,17 +279,8 @@ function UploadForm() {
                                         setLoading(true);
                                         setMessage({ type: 'success', text: 'Uploading file...' });
                                     }}
-                                    appearance={{
-                                        button: "w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-white hover:bg-gray-900 transition-all cursor-pointer after:bg-red-600",
-                                        allowedContent: "text-xs text-gray-500"
-                                    }}
-                                    content={{
-                                        button({ ready }) {
-                                            if (ready) return <div className="flex items-center gap-2 justify-center"><UploadCloud size={18} /> Choose file</div>;
-                                            return "Loading...";
-                                        }
-                                    }}
                                 />
+                                <p className="text-xs text-gray-500 mt-1">Or paste a URL above</p>
                             </div>
                         </div>
 
@@ -297,7 +288,7 @@ function UploadForm() {
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-gray-400">Thumbnail URL</label>
                                 <input
-                                    type="url"
+                                    type="text"
                                     value={formData.thumbnailUrl}
                                     onChange={(e) => setFormData({ ...formData, thumbnailUrl: e.target.value })}
                                     className="w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-white focus:ring-2 focus:ring-red-500 outline-none"
