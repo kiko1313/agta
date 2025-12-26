@@ -36,6 +36,7 @@ export default function ContentList({ initialContent }: ContentListProps) {
         try {
             const res = await fetch(`/api/content/${id}`, {
                 method: 'DELETE',
+                credentials: 'include',
             });
 
             if (!res.ok) {

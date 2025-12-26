@@ -108,6 +108,7 @@ function UploadForm() {
             const res = await fetch('/api/content', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
                 body: JSON.stringify(payload),
             });
 
