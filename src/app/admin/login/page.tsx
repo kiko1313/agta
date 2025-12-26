@@ -9,11 +9,13 @@ export default function AdminLogin() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
     const router = useRouter();
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+        setLoading(true);
 
         try {
             const res = await fetch('/api/auth/login', {
@@ -29,7 +31,9 @@ export default function AdminLogin() {
                 setError(data.error || 'Login failed');
             }
         } catch (err) {
-            setError('An error occurred');
+            setError('An error occurred. Please try again.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -62,6 +66,7 @@ export default function AdminLogin() {
                                 type="text"
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
+                                disabled={loading}
                                 className="w-full bg-gray-950 border border-gray-800 rounded-lg py-3 pl-10 pr-4 focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all placeholder-gray-600"
                                 placeholder="Enter username"
                                 required
@@ -77,6 +82,7 @@ export default function AdminLogin() {
                                 type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
+                                disabled={loading}
                                 className="w-full bg-gray-950 border border-gray-800 rounded-lg py-3 pl-10 pr-4 focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all placeholder-gray-600"
                                 placeholder="Enter password"
                                 required
@@ -88,9 +94,10 @@ export default function AdminLogin() {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         type="submit"
-                        className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition-colors shadow-lg shadow-red-900/20"
+                        disabled={loading}
+                        className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-800 disabled:text-gray-500 text-white font-bold py-3 rounded-lg transition-colors shadow-lg shadow-red-900/20"
                     >
-                        Sign In
+                        {loading ? 'Signing in...' : 'Sign In'}
                     </motion.button>
                 </form>
             </motion.div>

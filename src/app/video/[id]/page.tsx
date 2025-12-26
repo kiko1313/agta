@@ -6,6 +6,23 @@ import { notFound } from 'next/navigation';
 import { Download, Share2, ThumbsUp } from 'lucide-react';
 import { Metadata, ResolvingMetadata } from 'next';
 
+function normalizeUrl(url: string): string {
+    const trimmed = url.trim();
+    if (!trimmed) return trimmed;
+    if (!/^https?:\/\//i.test(trimmed)) return `https://${trimmed}`;
+    return trimmed;
+}
+
+function guessVideoMimeType(url: string): string | undefined {
+    const u = url.split('?')[0]?.split('#')[0] || url;
+    const ext = u.split('.').pop()?.toLowerCase();
+    if (!ext) return undefined;
+    if (ext === 'mp4' || ext === 'm4v') return 'video/mp4';
+    if (ext === 'webm') return 'video/webm';
+    if (ext === 'mov') return 'video/quicktime';
+    return undefined;
+}
+
 interface Props {
     params: Promise<{ id: string }>;
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -53,34 +70,34 @@ export default async function VideoPage({ params }: Props) {
     if (!video) return notFound();
 
     // Determine if it's a YouTube link or direct file
-    const isYouTube = video.url.includes('youtube.com') || video.url.includes('youtu.be');
+    // Enhanced YouTube detection and embed URL generation
+    const isYouTube = /(?:youtube\.com|youtu\.be)/i.test(video.url);
 
-    // Helper to get embed URL
+    // Helper to get embed URL (adds protocol when missing and supports shorts)
     const getEmbedUrl = (url: string) => {
-        // Normalize the URL (add https:// if missing, handle youtube.com vs www.youtube.com)
-        let normalizedUrl = url.trim();
-        if (!normalizedUrl.startsWith('http')) {
-            normalizedUrl = 'https://' + normalizedUrl;
-        }
+        let normalized = normalizeUrl(url);
 
-        // Handle YouTube watch URLs (with query parameters)
-        if (normalizedUrl.includes('youtube.com/watch')) {
-            const videoId = normalizedUrl.split('v=')[1]?.split('&')[0];
-            if (videoId) return `https://www.youtube.com/embed/${videoId}`;
+        // YouTube watch URLs
+        if (normalized.includes('youtube.com/watch')) {
+            const id = new URL(normalized).searchParams.get('v');
+            if (id) return `https://www.youtube.com/embed/${id}?autoplay=1&playsinline=1&rel=0&modestbranding=1`;
         }
-        // Handle YouTube Shorts (with or without www.)
-        if (normalizedUrl.includes('youtube.com/shorts/')) {
-            const videoId = normalizedUrl.split('shorts/')[1]?.split('?')[0]?.split('&')[0];
-            if (videoId) return `https://www.youtube.com/embed/${videoId}`;
+        // YouTube short URLs (youtu.be)
+        if (normalized.includes('youtu.be/')) {
+            const id = normalized.split('youtu.be/')[1]?.split(/[?&]/)[0];
+            if (id) return `https://www.youtube.com/embed/${id}?autoplay=1&playsinline=1&rel=0&modestbranding=1`;
         }
-        // Handle short YouTube URLs (youtu.be)
-        if (normalizedUrl.includes('youtu.be/')) {
-            const videoId = normalizedUrl.split('youtu.be/')[1]?.split('?')[0]?.split('&')[0];
-            if (videoId) return `https://www.youtube.com/embed/${videoId}`;
+        // YouTube Shorts URLs
+        if (normalized.includes('youtube.com/shorts/')) {
+            const id = normalized.split('shorts/')[1]?.split(/[?&]/)[0];
+            if (id) return `https://www.youtube.com/embed/${id}?autoplay=1&playsinline=1&rel=0&modestbranding=1`;
         }
-        // If already an embed URL or not YouTube, return as-is
-        return normalizedUrl;
+        // Direct file URLs – ensure protocol is present
+        return normalized;
     };
+
+    const normalizedMediaUrl = normalizeUrl(video.url);
+    const videoMime = guessVideoMimeType(normalizedMediaUrl);
 
     return (
         <div className="min-h-screen bg-black text-white p-6">
@@ -96,10 +113,22 @@ export default async function VideoPage({ params }: Props) {
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         />
                     ) : (
-                        <video controls className="w-full h-full" poster={video.thumbnailUrl}>
-                            <source src={video.url} />
-                            Your browser does not support the video tag.
-                        </video>
+                        // Check if it's an image instead of a video
+                        /\.(jpg|jpeg|png|gif|webp|bmp)$/i.test(normalizedMediaUrl) ? (
+                            <img src={normalizedMediaUrl} alt={video.title} className="w-full h-full object-contain" />
+                        ) : (
+                            <video
+                                controls
+                                playsInline
+                                preload="metadata"
+                                className="w-full h-full"
+                                poster={video.thumbnailUrl}
+                                crossOrigin="anonymous"
+                            >
+                                <source src={normalizedMediaUrl} type={videoMime} />
+                                Your browser does not support the video tag.
+                            </video>
+                        )
                     )}
                 </div>
 

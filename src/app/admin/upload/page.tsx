@@ -4,6 +4,76 @@ import { useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FileVideo, Image as ImageIcon, Link as LinkIcon, Download, UploadCloud, CheckCircle, AlertCircle } from 'lucide-react';
+import { UploadButton } from '@/utils/uploadthing';
+
+function getYouTubeId(url: string): string | null {
+    try {
+        const raw = url.trim();
+        const normalized = raw.startsWith('http') ? raw : `https://${raw}`;
+        const u = new URL(normalized);
+
+        if (u.hostname.includes('youtu.be')) {
+            const id = u.pathname.split('/').filter(Boolean)[0];
+            return id || null;
+        }
+
+        if (u.hostname.includes('youtube.com')) {
+            if (u.pathname.startsWith('/watch')) {
+                return u.searchParams.get('v');
+            }
+            if (u.pathname.startsWith('/shorts/')) {
+                const id = u.pathname.split('/shorts/')[1]?.split('/')[0];
+                return id || null;
+            }
+            if (u.pathname.startsWith('/embed/')) {
+                const id = u.pathname.split('/embed/')[1]?.split('/')[0];
+                return id || null;
+            }
+        }
+
+        return null;
+    } catch {
+        return null;
+    }
+}
+
+async function generateVideoThumbnailDataUrlFromRemote(url: string): Promise<string | null> {
+    try {
+        const normalized = /^https?:\/\//i.test(url) ? url : `https://${url}`;
+        const video = document.createElement('video');
+        video.src = normalized;
+        video.muted = true;
+        video.playsInline = true;
+        video.preload = 'auto';
+        video.crossOrigin = 'anonymous';
+
+        await new Promise<void>((resolve, reject) => {
+            video.addEventListener('loadeddata', () => resolve(), { once: true });
+            video.addEventListener('error', () => reject(new Error('Failed to load video for thumbnail')), { once: true });
+        });
+
+        const targetTime = Math.min(0.2, Number.isFinite(video.duration) ? Math.max(0, video.duration - 0.1) : 0.2);
+        if (targetTime > 0) {
+            video.currentTime = targetTime;
+            await new Promise<void>((resolve) => {
+                video.addEventListener('seeked', () => resolve(), { once: true });
+            });
+        }
+
+        const canvas = document.createElement('canvas');
+        const width = Math.min(1280, video.videoWidth || 1280);
+        const height = Math.round(width / (video.videoWidth && video.videoHeight ? (video.videoWidth / video.videoHeight) : (16 / 9)));
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return null;
+        ctx.drawImage(video, 0, 0, width, height);
+
+        return canvas.toDataURL('image/jpeg', 0.85);
+    } catch {
+        return null;
+    }
+}
 
 function UploadForm() {
     const searchParams = useSearchParams();
@@ -42,7 +112,8 @@ function UploadForm() {
             });
 
             if (!res.ok) {
-                throw new Error('Failed to create content');
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error || 'Failed to create content');
             }
 
             setMessage({ type: 'success', text: 'Content uploaded successfully!' });
@@ -135,48 +206,73 @@ function UploadForm() {
                             <input
                                 type="url"
                                 value={formData.url}
-                                onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+                                onChange={(e) => {
+                                    const url = e.target.value;
+                                    setFormData(prev => {
+                                        const next = { ...prev, url };
+                                        if (type === 'video') {
+                                            const yt = getYouTubeId(url);
+                                            if (yt && !next.thumbnailUrl) {
+                                                next.thumbnailUrl = `https://i.ytimg.com/vi/${yt}/hqdefault.jpg`;
+                                            }
+                                        }
+                                        return next;
+                                    });
+                                }}
                                 className="w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-white focus:ring-2 focus:ring-red-500 outline-none"
                                 placeholder="https://..."
                             />
                             <div className="space-y-2">
-                                <p className="text-xs text-gray-500">Paste a URL above, or upload from your PC:</p>
-                                <input
-                                    type="file"
-                                    accept={type === 'video' ? 'video/*' : type === 'photo' ? 'image/*' : '.pdf,.zip,.exe'}
-                                    onChange={async (e) => {
-                                        const file = e.target.files?.[0];
-                                        if (!file) return;
+                                <UploadButton
+                                    endpoint={
+                                        type === 'video' ? 'videoUploader' :
+                                            type === 'photo' ? 'imageUploader' :
+                                                'fileUploader'
+                                    }
+                                    onClientUploadComplete={(res) => {
+                                        if (res?.[0]?.url) {
+                                            const uploadedUrl = res[0].url;
+                                            setFormData(prev => ({ ...prev, url: uploadedUrl }));
 
+                                            if (type === 'video') {
+                                                const yt = getYouTubeId(uploadedUrl);
+                                                if (yt) {
+                                                    setFormData(prev => ({ ...prev, thumbnailUrl: prev.thumbnailUrl || `https://i.ytimg.com/vi/${yt}/hqdefault.jpg` }));
+                                                } else {
+                                                    if (!formData.thumbnailUrl) {
+                                                        generateVideoThumbnailDataUrlFromRemote(uploadedUrl)
+                                                            .then((thumb) => {
+                                                                if (thumb) {
+                                                                    setFormData(prev => ({ ...prev, thumbnailUrl: prev.thumbnailUrl || thumb }));
+                                                                }
+                                                            })
+                                                            .catch(() => { });
+                                                    }
+                                                }
+                                            }
+
+                                            setMessage({ type: 'success', text: 'File uploaded successfully!' });
+                                        }
+                                        setLoading(false);
+                                    }}
+                                    onUploadError={(error: Error) => {
+                                        setMessage({ type: 'error', text: `Upload failed: ${error.message}` });
+                                        setLoading(false);
+                                    }}
+                                    onUploadBegin={() => {
                                         setLoading(true);
                                         setMessage({ type: 'success', text: 'Uploading file...' });
-
-                                        try {
-                                            const formData = new FormData();
-                                            formData.append('file', file);
-
-                                            const res = await fetch('/api/upload', {
-                                                method: 'POST',
-                                                body: formData,
-                                            });
-
-                                            if (!res.ok) {
-                                                const errorData = await res.json();
-                                                throw new Error(errorData.details || 'Upload failed');
-                                            }
-
-                                            const data = await res.json();
-                                            if (data.url) {
-                                                setFormData(prev => ({ ...prev, url: data.url }));
-                                                setMessage({ type: 'success', text: 'File uploaded successfully!' });
-                                            }
-                                        } catch (error) {
-                                            setMessage({ type: 'error', text: `Upload failed: ${error instanceof Error ? error.message : 'Please try again'}` });
-                                        } finally {
-                                            setLoading(false);
+                                    }}
+                                    appearance={{
+                                        button: "w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-white hover:bg-gray-900 transition-all cursor-pointer after:bg-red-600",
+                                        allowedContent: "text-xs text-gray-500"
+                                    }}
+                                    content={{
+                                        button({ ready }) {
+                                            if (ready) return <div className="flex items-center gap-2 justify-center"><UploadCloud size={18} /> Choose file</div>;
+                                            return "Loading...";
                                         }
                                     }}
-                                    className="w-full bg-gray-950 border border-gray-800 rounded-lg p-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-red-600 file:text-white hover:file:bg-red-700 cursor-pointer"
                                 />
                             </div>
                         </div>

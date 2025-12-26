@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Trash2, ExternalLink } from 'lucide-react';
+import Link from 'next/link';
+import { Pencil, Trash2, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 
@@ -127,6 +128,13 @@ export default function ContentList({ initialContent }: ContentListProps) {
                                 </div>
 
                                 <div className="flex items-center gap-2">
+                                    <Link
+                                        href={`/admin/edit/${item._id}`}
+                                        className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+                                        title="Edit content"
+                                    >
+                                        <Pencil size={18} />
+                                    </Link>
                                     {deleteConfirm === item._id ? (
                                         <div className="flex items-center gap-2">
                                             <button
