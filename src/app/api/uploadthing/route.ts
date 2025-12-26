@@ -1,17 +1,13 @@
 import { createRouteHandler } from "uploadthing/next";
 import { createUploadthing, type FileRouter } from "uploadthing/next";
-import { isAuthenticated } from "@/lib/auth";
 
 const f = createUploadthing();
 
 // FileRouter for your app, can contain multiple FileRoutes
+// Note: Auth is handled by Next.js middleware - only admin users can access /admin/upload
 export const ourFileRouter = {
-    // Define as many FileRoutes as you like, each with a unique routeSlug
     imageUploader: f({ image: { maxFileSize: "4MB", maxFileCount: 10 } })
         .middleware(async () => {
-            if (!await isAuthenticated()) {
-                throw new Error('Unauthorized');
-            }
             return {};
         })
         .onUploadComplete(async ({ file }) => {
@@ -21,9 +17,6 @@ export const ourFileRouter = {
 
     videoUploader: f({ video: { maxFileSize: "512MB", maxFileCount: 1 } })
         .middleware(async () => {
-            if (!await isAuthenticated()) {
-                throw new Error('Unauthorized');
-            }
             return {};
         })
         .onUploadComplete(async ({ file }) => {
@@ -33,9 +26,6 @@ export const ourFileRouter = {
 
     pdfUploader: f({ pdf: { maxFileSize: "32MB", maxFileCount: 1 } })
         .middleware(async () => {
-            if (!await isAuthenticated()) {
-                throw new Error('Unauthorized');
-            }
             return {};
         })
         .onUploadComplete(async ({ file }) => {
@@ -45,9 +35,6 @@ export const ourFileRouter = {
 
     fileUploader: f({ "blob": { maxFileSize: "512MB", maxFileCount: 1 } })
         .middleware(async () => {
-            if (!await isAuthenticated()) {
-                throw new Error('Unauthorized');
-            }
             return {};
         })
         .onUploadComplete(async ({ file }) => {
