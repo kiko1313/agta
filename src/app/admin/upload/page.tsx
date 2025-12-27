@@ -356,6 +356,54 @@ function UploadForm() {
                         />
                     </div>
 
+                    {/* Preview Section */}
+                    {(formData.url || formData.thumbnailUrl) && (
+                        <div className="mt-8 p-4 bg-gray-950/50 rounded-xl border border-gray-800">
+                            <h3 className="text-sm font-medium text-gray-400 mb-4">Preview</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {formData.thumbnailUrl && (
+                                    <div className="space-y-2">
+                                        <p className="text-xs text-gray-500">Thumbnail</p>
+                                        <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-900 border border-gray-800">
+                                            <img 
+                                                src={formData.thumbnailUrl} 
+                                                alt="Thumbnail preview" 
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                                
+                                {type === 'video' && formData.url && (
+                                    <div className="space-y-2">
+                                        <p className="text-xs text-gray-500">Video</p>
+                                        <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-900 border border-gray-800">
+                                            <video 
+                                                src={formData.url} 
+                                                controls 
+                                                className="w-full h-full"
+                                                onError={(e) => console.error("Video preview error:", e)}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                                
+                                {type === 'photo' && formData.url && (
+                                    <div className="space-y-2">
+                                        <p className="text-xs text-gray-500">Image</p>
+                                        <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-900 border border-gray-800">
+                                            <img 
+                                                src={formData.url} 
+                                                alt="Content preview" 
+                                                className="w-full h-full object-contain"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
                     <AnimatePresence>
                         {message && (
                             <motion.div
