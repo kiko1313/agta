@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google"; // Using Inter as requested (Modern)
 import "./globals.css";
 import Header from "@/components/Header";
-// import MonetagScript from "@/components/MonetagScript"; // Uncomment when ID is available
+import MonetagScript from "@/components/MonetagScript"; // Loads only if env provided
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={inter.className}>
-        {/* <MonetagScript /> */}
+        <MonetagScript />
         {/* Check if we are in admin to hide header? 
             Actually, Admin layout is separate, but RootLayout wraps EVERYTHING including Admin Layout.
             We might want to conditionally render Header only if NOT in admin.
