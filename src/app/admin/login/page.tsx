@@ -28,8 +28,19 @@ export default function AdminLogin() {
             if (res.ok) {
                 router.push('/admin');
             } else {
-                const data = await res.json();
-                setError(data.error || 'Login failed');
+                let errorMsg = 'Login failed';
+                try {
+                    const contentType = res.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        const data = await res.json();
+                        errorMsg = data.error || errorMsg;
+                    } else {
+                        errorMsg = `Error ${res.status}: ${res.statusText}`;
+                    }
+                } catch (e) {
+                    // Fallback
+                }
+                setError(errorMsg);
             }
         } catch (err) {
             setError('An error occurred. Please try again.');

@@ -75,7 +75,7 @@ export default async function VideoPage({ params }: Props) {
 
     // Helper to get embed URL (adds protocol when missing and supports shorts)
     const getEmbedUrl = (url: string) => {
-        let normalized = normalizeUrl(url);
+        const normalized = normalizeUrl(url);
 
         // YouTube watch URLs
         if (normalized.includes('youtube.com/watch')) {
@@ -99,11 +99,14 @@ export default async function VideoPage({ params }: Props) {
     const normalizedMediaUrl = normalizeUrl(video.url);
     const videoMime = guessVideoMimeType(normalizedMediaUrl);
 
+    // If no MIME type is detected, we can default to empty or generic,
+    // but the browser might sniff it.
+    
     return (
         <div className="min-h-screen bg-black text-white p-6">
             <div className="max-w-6xl mx-auto">
                 {/* Video Player Container */}
-                <div className="aspect-video bg-gray-900 rounded-2xl overflow-hidden shadow-2xl border border-gray-800 mb-6 relative">
+                <div className="aspect-video bg-gray-900 rounded-2xl overflow-hidden shadow-2xl border border-gray-800 mb-6 relative group">
                     {isYouTube ? (
                         <iframe
                             src={getEmbedUrl(video.url)}
@@ -121,8 +124,11 @@ export default async function VideoPage({ params }: Props) {
                             poster={video.thumbnailUrl}
                             crossOrigin="anonymous"
                         >
-                            <source src={normalizedMediaUrl} type={videoMime} />
-                            Your browser does not support the video tag.
+                            <source src={normalizedMediaUrl} type={videoMime || 'video/mp4'} />
+                            <p className="p-4 text-center">
+                                Your browser does not support the video tag.
+                                <a href={normalizedMediaUrl} target="_blank" className="text-red-500 underline ml-2">Download Video</a>
+                            </p>
                         </video>
                     )}
                 </div>

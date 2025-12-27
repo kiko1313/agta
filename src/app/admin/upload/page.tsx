@@ -48,8 +48,17 @@ async function generateVideoThumbnailDataUrlFromRemote(url: string): Promise<str
         video.crossOrigin = 'anonymous';
 
         await new Promise<void>((resolve, reject) => {
-            video.addEventListener('loadeddata', () => resolve(), { once: true });
-            video.addEventListener('error', () => reject(new Error('Failed to load video for thumbnail')), { once: true });
+            const timeout = setTimeout(() => reject(new Error('Timeout loading video')), 10000);
+            
+            video.addEventListener('loadeddata', () => {
+                clearTimeout(timeout);
+                resolve();
+            }, { once: true });
+            
+            video.addEventListener('error', () => {
+                clearTimeout(timeout);
+                reject(new Error('Failed to load video for thumbnail'));
+            }, { once: true });
         });
 
         const targetTime = Math.min(0.2, Number.isFinite(video.duration) ? Math.max(0, video.duration - 0.1) : 0.2);
@@ -113,8 +122,26 @@ function UploadForm() {
             });
 
             if (!res.ok) {
-                const err = await res.json().catch(() => ({}));
-                throw new Error(err.error || 'Failed to create content');
+                if (res.status === 401 || res.status === 403) {
+                    router.push('/admin/login');
+                    throw new Error('Session expired. Please log in again.');
+                }
+
+                let errorMsg = 'Failed to create content';
+                try {
+                    const contentType = res.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        const err = await res.json();
+                        errorMsg = err.error || errorMsg;
+                    } else {
+                        const text = await res.text();
+                        errorMsg = text || `Error ${res.status}: ${res.statusText}`;
+                    }
+                } catch (e) {
+                    // Fallback if parsing fails
+                    errorMsg = `Error ${res.status}: ${res.statusText}`;
+                }
+                throw new Error(errorMsg);
             }
 
             setMessage({ type: 'success', text: 'Content uploaded successfully!' });
@@ -281,6 +308,10 @@ function UploadForm() {
                                     onUploadBegin={() => {
                                         setLoading(true);
                                         setMessage({ type: 'success', text: 'Uploading file...' });
+                                    }}
+                                    appearance={{
+                                        button: "bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-xl transition-all shadow-lg shadow-red-900/20",
+                                        allowedContent: "text-gray-400 text-xs"
                                     }}
                                 />
                                 <p className="text-xs text-gray-500 mt-1">Or paste a URL above</p>
