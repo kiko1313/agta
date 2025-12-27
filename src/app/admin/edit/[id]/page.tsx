@@ -266,6 +266,54 @@ export default function AdminEditPage() {
                             />
                         </div>
 
+                        {/* Preview Section */}
+                        {(form.url || form.thumbnailUrl) && (
+                            <div className="p-4 bg-gray-950/50 rounded-xl border border-gray-800">
+                                <h3 className="text-sm font-medium text-gray-400 mb-4">Preview</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {form.thumbnailUrl && (
+                                        <div className="space-y-2">
+                                            <p className="text-xs text-gray-500">Thumbnail</p>
+                                            <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-900 border border-gray-800">
+                                                <img 
+                                                    src={form.thumbnailUrl} 
+                                                    alt="Thumbnail preview" 
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+                                    
+                                    {item?.type === 'video' && form.url && (
+                                        <div className="space-y-2">
+                                            <p className="text-xs text-gray-500">Video</p>
+                                            <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-900 border border-gray-800">
+                                                <video 
+                                                    src={form.url} 
+                                                    controls 
+                                                    className="w-full h-full"
+                                                    onError={(e) => console.error("Video preview error:", e)}
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+                                    
+                                    {item?.type === 'photo' && form.url && (
+                                        <div className="space-y-2">
+                                            <p className="text-xs text-gray-500">Image</p>
+                                            <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-900 border border-gray-800">
+                                                <img 
+                                                    src={form.url} 
+                                                    alt="Content preview" 
+                                                    className="w-full h-full object-contain"
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
                         <button
                             type="submit"
                             disabled={saving}
