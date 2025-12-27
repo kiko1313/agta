@@ -114,9 +114,14 @@ function UploadForm() {
                 tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean),
             };
 
+            const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+            try {
+                const bearer = localStorage.getItem('admin_token') || localStorage.getItem('token');
+                if (bearer) headers['Authorization'] = `Bearer ${bearer}`;
+            } catch {}
             const res = await fetch('/api/content', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers,
                 credentials: 'include',
                 body: JSON.stringify(payload),
             });

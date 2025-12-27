@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
         if (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
             // Create cookie
             const token = signToken({ username });
-            const response = NextResponse.json({ success: true });
+            const response = NextResponse.json({ success: true, token });
             response.cookies.set('admin_token', token, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
             }
 
             const token = signToken({ username: admin.username, id: admin._id.toString() });
-            const response = NextResponse.json({ success: true });
+            const response = NextResponse.json({ success: true, token });
             response.cookies.set('admin_token', token, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
