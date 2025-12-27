@@ -1,6 +1,7 @@
 import { connectDB } from "@/lib/mongodb";
 import Content from '@/models/Content';
 import { Metadata } from 'next';
+import PhotoGrid from '@/components/PhotoGrid';
 
 export const dynamic = "force-dynamic";
 
@@ -28,27 +29,7 @@ export default async function PhotosPage() {
                     <p className="text-gray-400">Visual inspiration for your next project.</p>
                 </div>
 
-                <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
-                    {photos.map((photo: any) => (
-                        <a
-                            key={photo._id}
-                            href={photo.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="break-inside-avoid relative group rounded-xl overflow-hidden block"
-                            aria-label={photo.title}
-                        >
-                            <img
-                                src={photo.url}
-                                alt={photo.title}
-                                className="w-full object-cover hover:scale-105 transition-transform duration-700"
-                            />
-                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                <span className="text-white font-medium px-4 text-center">{photo.title}</span>
-                            </div>
-                        </a>
-                    ))}
-                </div>
+                <PhotoGrid photos={photos as any} />
             </div>
         </div>
     );
