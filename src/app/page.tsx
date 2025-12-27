@@ -1,8 +1,10 @@
 import Link from 'next/link';
-import { Play, Download, ExternalLink, ArrowRight } from 'lucide-react';
+import { Download, ExternalLink, ArrowRight } from 'lucide-react';
 import { connectDB } from "@/lib/mongodb";
 import Content, { IContent } from '@/models/Content';
 import { Metadata } from 'next';
+import VideoStripe from '@/components/VideoStripe';
+import PhotoGrid from '@/components/PhotoGrid';
 
 export const dynamic = "force-dynamic";
 
@@ -45,28 +47,7 @@ export default async function Home() {
           </Link>
         </div>
 
-        <div className="flex gap-6 overflow-x-auto px-6 pb-6 scrollbar-hide snap-x">
-          {videos.length === 0 && (
-            <div className="w-full text-center text-gray-500 py-12">No videos yet.</div>
-          )}
-          {videos.map((video: any) => (
-            <Link href={`/video/${video._id}`} key={video._id} className="min-w-[300px] md:min-w-[400px] snap-start group relative rounded-xl overflow-hidden aspect-video bg-gray-900 border border-gray-800 hover:border-red-500 transition-all shadow-lg hover:shadow-red-900/20">
-              {/* Placeholder for real thumbnail if empty */}
-              <img
-                src={video.thumbnailUrl || `https://placehold.co/600x400/1a1a1a/FFF?text=${encodeURIComponent(video.title)}`}
-                alt={video.title}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent p-4 flex flex-col justify-end">
-                <div className="bg-red-600/90 text-white w-10 h-10 rounded-full flex items-center justify-center mb-2 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
-                  <Play size={20} fill="currentColor" />
-                </div>
-                <h3 className="font-bold text-lg leading-tight group-hover:text-red-400 transition-colors">{video.title}</h3>
-                <p className="text-xs text-gray-400 mt-1 line-clamp-1">{video.category}</p>
-              </div>
-            </Link>
-          ))}
-        </div>
+        <VideoStripe videos={videos as any} />
       </section>
 
       {/* Programs & Links Section */}
@@ -110,20 +91,8 @@ export default async function Home() {
           </Link>
         </div>
 
-        <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4 max-w-7xl mx-auto">
-          {photos.map((photo: any) => (
-            <div key={photo._id} className="break-inside-avoid relative group rounded-xl overflow-hidden cursor-zoom-in">
-              <img
-                src={photo.url}
-                alt={photo.title}
-                className="w-full object-cover hover:scale-110 transition-transform duration-700"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <span className="text-white font-medium px-4 text-center">{photo.title}</span>
-              </div>
-            </div>
-          ))}
+        <div className="max-w-7xl mx-auto">
+          <PhotoGrid photos={photos as any} />
         </div>
       </section>
 
