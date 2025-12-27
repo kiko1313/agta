@@ -14,13 +14,17 @@ export async function POST(req: NextRequest) {
             // Create cookie
             const token = signToken({ username });
             const response = NextResponse.json({ success: true, token });
-            response.cookies.set('admin_token', token, {
+            const cookieOptions: any = {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: 'lax',
                 maxAge: 60 * 60 * 24 * 7, // 1 week
                 path: '/',
-            });
+            };
+            if (process.env.COOKIE_DOMAIN) {
+                cookieOptions.domain = process.env.COOKIE_DOMAIN;
+            }
+            response.cookies.set('admin_token', token, cookieOptions);
             return response;
         }
 
@@ -39,13 +43,17 @@ export async function POST(req: NextRequest) {
 
             const token = signToken({ username: admin.username, id: admin._id.toString() });
             const response = NextResponse.json({ success: true, token });
-            response.cookies.set('admin_token', token, {
+            const cookieOptions: any = {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: 'lax',
                 maxAge: 60 * 60 * 24 * 7, // 1 week
                 path: '/',
-            });
+            };
+            if (process.env.COOKIE_DOMAIN) {
+                cookieOptions.domain = process.env.COOKIE_DOMAIN;
+            }
+            response.cookies.set('admin_token', token, cookieOptions);
             return response;
         } catch (dbError) {
             console.error('Database connection failed during login:', dbError);

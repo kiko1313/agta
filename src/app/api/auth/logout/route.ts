@@ -5,10 +5,14 @@ export async function POST(req: NextRequest) {
         success: true,
         redirectTo: '/admin/login'
     });
-    response.cookies.set('admin_token', '', {
+    const cookieOptions: any = {
         httpOnly: true,
         expires: new Date(0),
         path: '/',
-    });
+    };
+    if (process.env.COOKIE_DOMAIN) {
+        cookieOptions.domain = process.env.COOKIE_DOMAIN;
+    }
+    response.cookies.set('admin_token', '', cookieOptions);
     return response;
 }
