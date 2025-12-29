@@ -12,6 +12,8 @@ export interface IContent extends Document {
     category?: string;
     fileSize?: string; // For programs/files
     views: number;
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
 const ContentSchema: Schema = new Schema({

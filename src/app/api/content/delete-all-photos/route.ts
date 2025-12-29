@@ -14,15 +14,15 @@ export async function DELETE(req: NextRequest) {
         // Delete all content with type 'photo'
         const result = await Content.deleteMany({ type: 'photo' });
 
-        return NextResponse.json({ 
-            success: true, 
+        return NextResponse.json({
+            success: true,
             message: 'All photos deleted successfully',
-            deletedCount: result.deletedCount 
+            deletedCount: result.deletedCount
         });
     } catch (error: any) {
         console.error('Delete all photos error:', error);
-        return NextResponse.json({ 
-            error: error.message || 'Error deleting photos' 
+        return NextResponse.json({
+            error: error.message || 'Error deleting photos'
         }, { status: 500 });
     }
 }

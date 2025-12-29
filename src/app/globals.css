@@ -2,13 +2,35 @@
 @import "@uploadthing/react/styles.css";
 
 :root {
-  --background: #000000;
-  --foreground: #ffffff;
+  --background: #0f0f0f;
+  --foreground: #f3f4f6;
+  --card-bg: #1a1a1a;
+  --card-border: #2a2a2a;
+  --primary: #ef4444; /* Red-500 equivalent */
+  --primary-hover: #dc2626;
+  --radius: 12px;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+@layer utilities {
+  .glass-header {
+    background: rgba(15, 15, 15, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  
+  .card-hover {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
+  }
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */

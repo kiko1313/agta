@@ -13,12 +13,11 @@ export default function Header() {
     const links = [
         { href: '/', label: 'Home' },
         { href: '/videos', label: 'Videos' },
-        { href: '/photos', label: 'Photos' },
         { href: '/programs', label: 'Programs' },
     ];
 
     return (
-        <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-gray-800">
+        <header className="sticky top-0 z-50 glass-header">
             <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
                 {/* Logo */}
                 <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent tracking-tighter hover:opacity-80 transition-opacity">
@@ -39,25 +38,25 @@ export default function Header() {
                     ))}
                 </nav>
 
-                {/* Social Buttons */}
-                <div className="hidden md:flex items-center gap-4">
+                {/* Social Buttons (Top-Right) */}
+                <div className="hidden md:flex items-center gap-2">
                     <a
                         href="https://www.youtube.com/@3ackrab"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full text-sm font-bold transition-all shadow-lg hover:shadow-red-900/40"
+                        className="text-gray-400 hover:text-white p-2 rounded-full hover:bg-white/10 transition-all"
+                        aria-label="YouTube"
                     >
-                        <Youtube size={16} />
-                        <span>YouTube</span>
+                        <Youtube size={20} />
                     </a>
                     <a
                         href="https://pin.it/4KSyyBtF8"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2 bg-gray-900 hover:bg-gray-800 text-gray-300 px-4 py-2 rounded-full text-sm font-medium transition-all border border-gray-800"
+                        className="text-gray-400 hover:text-white p-2 rounded-full hover:bg-white/10 transition-all"
+                        aria-label="Pinterest"
                     >
-                        <span>Pinterest</span>
-                        <ExternalLink size={14} />
+                        <ExternalLink size={20} />
                     </a>
                 </div>
 

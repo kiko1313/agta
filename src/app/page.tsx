@@ -3,8 +3,8 @@ import { Download, ExternalLink, ArrowRight } from 'lucide-react';
 import { connectDB } from "@/lib/mongodb";
 import Content, { IContent } from '@/models/Content';
 import { Metadata } from 'next';
-import VideoStripe from '@/components/VideoStripe';
-import PhotoGrid from '@/components/PhotoGrid';
+import VideoGrid from '@/components/VideoGrid';
+
 
 export const dynamic = "force-dynamic";
 
@@ -16,57 +16,41 @@ export const metadata: Metadata = {
 async function getData() {
   try {
     await connectDB();
-    const [videos, photos, programs, links] = await Promise.all([
-      Content.find({ type: 'video' }).sort({ createdAt: -1 }).limit(10).lean(),
-      Content.find({ type: 'photo' }).sort({ createdAt: -1 }).limit(20).lean(),
+    const [videos, programs, links] = await Promise.all([
+      Content.find({ type: 'video' }).sort({ createdAt: -1 }).limit(50).lean(),
       Content.find({ type: 'program' }).sort({ createdAt: -1 }).limit(6).lean(),
       Content.find({ type: 'link' }).sort({ createdAt: -1 }).limit(3).lean()
     ]);
 
-    return { videos, photos, programs, links };
+    return { videos, programs, links };
   } catch (error) {
     console.error("Failed to fetch data:", error);
     // Return empty arrays so the page doesn't crash
-    return { videos: [], photos: [], programs: [], links: [] };
+    return { videos: [], programs: [], links: [] };
   }
 }
 
 export default async function Home() {
-  const { videos, photos, programs, links } = await getData();
+  const { videos, programs, links } = await getData();
 
   return (
     <div className="min-h-screen bg-black text-white overflow-x-hidden">
       {/* Hero / Video Stripe Section */}
       <section className="py-12 border-b border-gray-900">
+
         <div className="px-6 mb-6 flex items-center justify-between">
           <h2 className="text-2xl font-bold bg-gradient-to-r from-red-500 to-red-800 bg-clip-text text-transparent">
-            Latest Videos
+            Recommended
           </h2>
-          <Link href="/videos" className="text-sm text-gray-400 hover:text-white flex items-center gap-1 transition-colors">
-            View All <ArrowRight size={16} />
-          </Link>
+          {/* View All link removed/hidden as per single-page feed request, or kept for routing if /videos still meaningful */}
         </div>
 
-        <VideoStripe videos={videos as any} />
+        <div className="px-6">
+          <VideoGrid videos={videos as any} />
+        </div>
       </section>
 
-      
 
-      {/* Photos Masonry Section */}
-      <section className="py-12 px-4 md:px-6">
-        <div className="flex items-center justify-between mb-8 max-w-7xl mx-auto">
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
-            Gallery
-          </h2>
-          <Link href="/photos" className="text-sm text-gray-400 hover:text-white flex items-center gap-1 transition-colors">
-            View All <ArrowRight size={16} />
-          </Link>
-        </div>
-
-        <div className="max-w-7xl mx-auto">
-          <PhotoGrid photos={photos as any} />
-        </div>
-      </section>
 
       {/* Programs & Links Section */}
       <section className="py-12 px-6 border-t border-gray-900 bg-gradient-to-b from-black to-gray-950">
@@ -101,10 +85,6 @@ export default async function Home() {
       {/* Footer */}
       <footer className="py-12 border-t border-gray-900 text-center text-gray-500">
         <p>© 2025 AGTALIST. All rights reserved.</p>
-        <div className="flex justify-center gap-6 mt-4">
-          <a href="https://www.youtube.com/@3ackrab" target="_blank" className="hover:text-red-500 transition-colors">YouTube</a>
-          <a href="https://pin.it/4KSyyBtF8" target="_blank" className="hover:text-red-500 transition-colors">Pinterest</a>
-        </div>
       </footer>
     </div>
   );
