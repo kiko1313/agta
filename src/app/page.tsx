@@ -50,8 +50,26 @@ export default async function Home() {
         <VideoStripe videos={videos as any} />
       </section>
 
+      
+
+      {/* Photos Masonry Section */}
+      <section className="py-12 px-4 md:px-6">
+        <div className="flex items-center justify-between mb-8 max-w-7xl mx-auto">
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
+            Gallery
+          </h2>
+          <Link href="/photos" className="text-sm text-gray-400 hover:text-white flex items-center gap-1 transition-colors">
+            View All <ArrowRight size={16} />
+          </Link>
+        </div>
+
+        <div className="max-w-7xl mx-auto">
+          <PhotoGrid photos={photos as any} />
+        </div>
+      </section>
+
       {/* Programs & Links Section */}
-      <section className="py-12 px-6 border-b border-gray-900 bg-gradient-to-b from-black to-gray-950">
+      <section className="py-12 px-6 border-t border-gray-900 bg-gradient-to-b from-black to-gray-950">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl font-bold text-white">Programs & Resources</h2>
@@ -77,22 +95,6 @@ export default async function Home() {
               </div>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* Photos Masonry Section */}
-      <section className="py-12 px-4 md:px-6">
-        <div className="flex items-center justify-between mb-8 max-w-7xl mx-auto">
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
-            Gallery
-          </h2>
-          <Link href="/photos" className="text-sm text-gray-400 hover:text-white flex items-center gap-1 transition-colors">
-            View All <ArrowRight size={16} />
-          </Link>
-        </div>
-
-        <div className="max-w-7xl mx-auto">
-          <PhotoGrid photos={photos as any} />
         </div>
       </section>
 

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
+import Admin from '@/models/Admin';
 import mongoose from 'mongoose';
 
 export const dynamic = 'force-dynamic';
@@ -20,6 +21,7 @@ export async function GET() {
         const startTime = Date.now();
         await connectDB();
         const duration = Date.now() - startTime;
+        const adminCount = await Admin.countDocuments().catch(() => -1);
 
         const stateInfo = {
             0: 'disconnected',
@@ -39,7 +41,14 @@ export async function GET() {
                 host: mongoose.connection.host,
                 dbName: mongoose.connection.name,
                 durationMs: duration,
-                uriConfigured: maskedURI
+                uriConfigured: maskedURI,
+                adminCount,
+                envConfigured: {
+                    ADMIN_USERNAME: !!process.env.ADMIN_USERNAME,
+                    ADMIN_PASSWORD: !!process.env.ADMIN_PASSWORD,
+                    COOKIE_DOMAIN: !!process.env.COOKIE_DOMAIN,
+                    JWT_SECRET: !!process.env.JWT_SECRET,
+                }
             }
         });
     } catch (error: any) {

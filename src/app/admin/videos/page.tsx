@@ -16,7 +16,15 @@ async function getVideos() {
 }
 
 export default async function AdminVideosPage() {
-    const videos = await getVideos();
+    let videos: any[] = [];
+    let error: string | null = null;
+
+    try {
+        videos = await getVideos();
+    } catch (e: any) {
+        console.error('Admin videos fetch failed:', e);
+        error = 'Failed to load videos. Please check database connection.';
+    }
 
     return (
         <div className="space-y-6">
@@ -24,7 +32,13 @@ export default async function AdminVideosPage() {
                 <h1 className="text-2xl font-bold text-white">Videos</h1>
                 <p className="text-gray-400 mt-1">Manage uploaded and linked videos.</p>
             </div>
-            <ContentList initialContent={videos} />
+            {error ? (
+                <div className="p-4 bg-red-900/30 border border-red-800 text-red-200 rounded-lg">
+                    {error}
+                </div>
+            ) : (
+                <ContentList initialContent={videos} />
+            )}
         </div>
     );
 }

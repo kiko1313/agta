@@ -34,13 +34,35 @@ export default function ContentList({ initialContent }: ContentListProps) {
         setMessage(null);
 
         try {
+            const headers: Record<string, string> = {};
+            const lsToken = typeof window !== 'undefined'
+                ? (localStorage.getItem('admin_token') || localStorage.getItem('token'))
+                : null;
+            if (lsToken) {
+                headers['Authorization'] = `Bearer ${lsToken}`;
+            }
+
             const res = await fetch(`/api/content/${id}`, {
                 method: 'DELETE',
                 credentials: 'include',
+                headers,
             });
 
             if (!res.ok) {
-                throw new Error('Failed to delete content');
+                if (res.status === 401 || res.status === 403) {
+                    setMessage({ type: 'error', text: 'Session expired. Please log in again.' });
+                    router.push('/admin/login');
+                    return;
+                }
+                const ct = res.headers.get('content-type');
+                let err = 'Failed to delete content';
+                if (ct && ct.includes('application/json')) {
+                    const data = await res.json().catch(() => ({}));
+                    err = data?.error || err;
+                } else {
+                    err = await res.text().catch(() => err);
+                }
+                throw new Error(err);
             }
 
             setContent(content.filter(item => item._id !== id));

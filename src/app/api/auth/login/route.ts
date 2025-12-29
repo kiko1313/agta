@@ -7,12 +7,16 @@ import bcrypt from 'bcryptjs';
 export async function POST(req: NextRequest) {
     try {
         const { username, password } = await req.json();
+        const u = typeof username === 'string' ? username.trim() : '';
+        const p = typeof password === 'string' ? password.trim() : '';
+        const envUser = (process.env.ADMIN_USERNAME || '').trim();
+        const envPass = (process.env.ADMIN_PASSWORD || '').trim();
 
         // 1. Check against Environment Variables FIRST (No DB required)
         // This ensures the main admin can login even if DB is down.
-        if (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
+        if (u && p && u === envUser && p === envPass) {
             // Create cookie
-            const token = signToken({ username });
+            const token = signToken({ username: u });
             const response = NextResponse.json({ success: true, token });
             const cookieOptions: any = {
                 httpOnly: true,
@@ -31,12 +35,33 @@ export async function POST(req: NextRequest) {
         // 2. Only connect to DB if we need to check other admins
         try {
             await connectDB();
-            const admin = await Admin.findOne({ username });
+            const adminCount = await Admin.countDocuments();
+            if (adminCount === 0) {
+                const salt = await bcrypt.genSalt(10);
+                const hashed = await bcrypt.hash(p, salt);
+                const created = await Admin.create({ username: u, password: hashed });
+                const token = signToken({ username: created.username, id: created._id.toString() });
+                const response = NextResponse.json({ success: true, token, bootstrap: true });
+                const cookieOptions: any = {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: 'lax',
+                    maxAge: 60 * 60 * 24 * 7, // 1 week
+                    path: '/',
+                };
+                if (process.env.COOKIE_DOMAIN) {
+                    cookieOptions.domain = process.env.COOKIE_DOMAIN;
+                }
+                response.cookies.set('admin_token', token, cookieOptions);
+                return response;
+            }
+
+            const admin = await Admin.findOne({ username: u });
             if (!admin) {
                 return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
             }
 
-            const isMatch = await bcrypt.compare(password, admin.password as string);
+            const isMatch = await bcrypt.compare(p, admin.password as string);
             if (!isMatch) {
                 return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
             }

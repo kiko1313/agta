@@ -26,6 +26,14 @@ export default function AdminLogin() {
             });
 
             if (res.ok) {
+                try {
+                    const data = await res.json();
+                    if (data?.token) {
+                        try {
+                            localStorage.setItem('token', data.token);
+                        } catch {}
+                    }
+                } catch {}
                 router.push('/admin');
             } else {
                 let errorMsg = 'Login failed';
