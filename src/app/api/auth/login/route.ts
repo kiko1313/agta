@@ -12,6 +12,8 @@ export async function POST(req: NextRequest) {
         const envUser = (process.env.ADMIN_USERNAME || '').trim();
         const envPass = (process.env.ADMIN_PASSWORD || '').trim();
 
+
+
         // 1. Check against Environment Variables FIRST (No DB required)
         // This ensures the main admin can login even if DB is down.
         if (u && p && u === envUser && p === envPass) {
