@@ -7,7 +7,7 @@ import VideoGrid from '@/components/VideoGrid';
 import MgidSidebar from '@/components/MgidSidebar';
 
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic"; // Trigger Vercel Rebuild
 
 export const metadata: Metadata = {
   title: 'AGTALIST - Premium Content Platform',
