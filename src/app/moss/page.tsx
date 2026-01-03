@@ -2,18 +2,19 @@ import { Metadata } from 'next';
 import { ExternalLink, Play } from 'lucide-react';
 
 export const metadata: Metadata = {
-    title: 'Exclusive Video Content - AGTALIST',
-    description: 'Watch the latest featured video on AGTALIST. Click to visit the official link!',
+    title: 'Veo 3.1 + NanoBanana - AGTALIST',
+    description: 'Experience Veo 3.1 + NanoBanana for free. Click to visit the official link!',
     openGraph: {
-        title: 'Featured Video Content - AGTALIST',
-        description: 'Watch and explore the latest from AGTALIST. Click here for more!',
+        title: 'Veo 3.1 + NanoBanana - AGTALIST',
+        description: 'Watch the latest featured content. Click here for more!',
         url: 'https://www.agtalist.info/moss',
         siteName: 'AGTALIST',
         images: [
             {
-                url: 'https://www.agtalist.info/favicon.ico', // Placeholder if no thumbnail is available
-                width: 400,
-                height: 400,
+                url: '/images/moss_thumb.jpg',
+                width: 1200,
+                height: 675,
+                alt: 'Veo 3.1 + NanoBanana',
             },
         ],
         type: 'video.other',
@@ -23,6 +24,7 @@ export const metadata: Metadata = {
 export default function MossLanding() {
     const videoUrl = "https://files.catbox.moe/43moss.mp4";
     const targetUrl = "https://otieu.com/4/10349575";
+    const thumbUrl = "/images/moss_thumb.jpg";
 
     return (
         <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-4">
@@ -47,6 +49,7 @@ export default function MossLanding() {
                         muted
                         loop
                         playsInline
+                        poster={thumbUrl}
                     >
                         <source src={videoUrl} type="video/mp4" />
                         Your browser does not support the video tag.
