@@ -13,6 +13,7 @@ export default function Header() {
     const links = [
         { href: '/', label: 'Home' },
         { href: '/videos', label: 'Videos' },
+        { href: '/reels', label: 'Reels' },
         { href: '/programs', label: 'Programs' },
     ];
 
