@@ -95,8 +95,8 @@ export default function ContentList({ initialContent }: ContentListProps) {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0 }}
                         className={`p-4 rounded-lg ${message.type === 'success'
-                                ? 'bg-green-900/30 text-green-400 border border-green-800'
-                                : 'bg-red-900/30 text-red-400 border border-red-800'
+                            ? 'bg-green-900/30 text-green-400 border border-green-800'
+                            : 'bg-red-900/30 text-red-400 border border-red-800'
                             }`}
                     >
                         {message.text}
@@ -120,6 +120,20 @@ export default function ContentList({ initialContent }: ContentListProps) {
                             className="bg-gray-900 border border-gray-800 rounded-xl p-6 hover:border-gray-700 transition-colors"
                         >
                             <div className="flex items-start justify-between gap-4">
+                                {/* Thumbnail Preview for photos and videos */}
+                                {(item.type === 'photo' || item.type === 'video') && (
+                                    <div className="flex-shrink-0 w-24 h-16 bg-gray-950 rounded-lg overflow-hidden border border-gray-800">
+                                        <img
+                                            src={item.thumbnailUrl || item.url || `https://placehold.co/200x150/1a1a1a/666?text=${encodeURIComponent(item.type)}`}
+                                            alt={item.title}
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => {
+                                                // Fallback if image fails to load
+                                                e.currentTarget.src = `https://placehold.co/200x150/1a1a1a/666?text=${encodeURIComponent(item.type)}`;
+                                            }}
+                                        />
+                                    </div>
+                                )}
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-3 mb-2">
                                         <span className={`text-xs font-mono px-2 py-1 rounded border ${getTypeColor(item.type)}`}>

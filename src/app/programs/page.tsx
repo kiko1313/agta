@@ -3,7 +3,8 @@ import { connectDB } from "@/lib/mongodb";
 import Content from '@/models/Content';
 import { Metadata } from 'next';
 
-export const dynamic = "force-dynamic";
+// Use ISR for better performance
+export const revalidate = 60;
 
 export const metadata: Metadata = {
     title: 'Programs & Files - AGTALIST',
@@ -11,9 +12,14 @@ export const metadata: Metadata = {
 };
 
 async function getPrograms() {
-    await connectDB();
-    const programs = await Content.find({ type: 'program' }).sort({ createdAt: -1 }).limit(50).lean();
-    return programs;
+    try {
+        await connectDB();
+        const programs = await Content.find({ type: 'program' }).sort({ createdAt: -1 }).limit(50).lean();
+        return JSON.parse(JSON.stringify(programs));
+    } catch (error) {
+        console.error('[getPrograms] Error:', error);
+        return [];
+    }
 }
 
 export default async function ProgramsPage() {

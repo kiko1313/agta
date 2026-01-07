@@ -4,7 +4,8 @@ import { Play } from 'lucide-react';
 import { connectDB } from "@/lib/mongodb";
 import Content from '@/models/Content';
 
-export const dynamic = "force-dynamic";
+// Use ISR for better performance and reliability
+export const revalidate = 60; // Revalidate every 60 seconds
 
 export const metadata: Metadata = {
     title: 'Videos - AGTALIST',
@@ -12,10 +13,16 @@ export const metadata: Metadata = {
 };
 
 async function getVideos() {
-    await connectDB();
-    // Fetch up to 50 videos for now (pagination can be added later via API)
-    const videos = await Content.find({ type: 'video' }).sort({ createdAt: -1 }).limit(50).lean();
-    return videos;
+    try {
+        await connectDB();
+        // Fetch up to 50 videos for now (pagination can be added later via API)
+        const videos = await Content.find({ type: 'video' }).sort({ createdAt: -1 }).limit(50).lean();
+        // Serialize to prevent hydration issues
+        return JSON.parse(JSON.stringify(videos));
+    } catch (error) {
+        console.error('[getVideos] Error fetching videos:', error);
+        return [];
+    }
 }
 
 export default async function VideosPage() {

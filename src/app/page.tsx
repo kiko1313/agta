@@ -7,7 +7,8 @@ import VideoGrid from '@/components/VideoGrid';
 import MgidSidebar from '@/components/MgidSidebar';
 
 
-export const dynamic = "force-dynamic"; // Trigger Vercel Rebuild
+// Use ISR for better caching and reliability
+export const revalidate = 60; // Revalidate every 60 seconds
 
 export const metadata: Metadata = {
   title: 'AGTALIST - Premium Content Platform',
@@ -23,9 +24,14 @@ async function getData() {
       Content.find({ type: 'link' }).sort({ createdAt: -1 }).limit(3).lean()
     ]);
 
-    return { videos, programs, links };
+    // Serialize MongoDB documents properly
+    return { 
+      videos: JSON.parse(JSON.stringify(videos)), 
+      programs: JSON.parse(JSON.stringify(programs)), 
+      links: JSON.parse(JSON.stringify(links)) 
+    };
   } catch (error) {
-    console.error("Failed to fetch data:", error);
+    console.error("[getData] Failed to fetch data:", error);
     // Return empty arrays so the page doesn't crash
     return { videos: [], programs: [], links: [] };
   }
@@ -84,6 +90,11 @@ export default async function Home() {
           {/* Footer */}
           <footer className="py-12 border-t border-gray-900 text-center text-gray-500">
             <p>© 2025 AGTALIST. All rights reserved.</p>
+            <div className="mt-4">
+              <Link href="/admin" className="text-xs text-gray-400 hover:text-white transition-colors">
+                Admin
+              </Link>
+            </div>
           </footer>
         </main>
 

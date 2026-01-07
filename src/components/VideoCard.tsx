@@ -10,8 +10,8 @@ interface VideoCardProps {
 }
 
 export default function VideoCard({ video }: VideoCardProps) {
-    // Fallback for missing thumbnail
-    const thumbnailUrl = video.thumbnailUrl || "/api/placeholder/400/225";
+    // Fallback for missing thumbnail with proper placeholder
+    const thumbnailUrl = video.thumbnailUrl || `https://placehold.co/600x400/1a1a1a/666?text=${encodeURIComponent(video.title.slice(0, 20))}`;
     // Placeholder duration data since we don't have it in DB yet
     const duration = "12:34";
 
