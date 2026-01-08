@@ -3,14 +3,24 @@ import { connectDB } from "@/lib/mongodb";
 import Content from '@/models/Content';
 import { isAuthenticated } from '@/lib/auth';
 
+export const revalidate = 0;
+
 export async function GET(req: NextRequest) {
     try {
         await connectDB();
 
         const { searchParams } = new URL(req.url);
         const type = searchParams.get('type');
-        const limit = parseInt(searchParams.get('limit') || '50');
-        const skip = parseInt(searchParams.get('skip') || '0');
+        const limitStr = searchParams.get('limit');
+        const skipStr = searchParams.get('skip');
+
+        const limit = limitStr ? Math.min(Math.max(parseInt(limitStr), 1), 100) : 50;
+        const skip = skipStr ? Math.max(parseInt(skipStr), 0) : 0;
+
+        const allowedTypes = ['video', 'photo', 'program', 'link'];
+        if (type && !allowedTypes.includes(type)) {
+            return NextResponse.json({ error: 'Invalid type parameter' }, { status: 400 });
+        }
 
         const query = type ? { type } : {};
         const content = await Content.find(query)

@@ -11,18 +11,15 @@ export async function DELETE(req: NextRequest) {
 
         await connectDB();
 
-        // Delete all content with type 'photo'
         const result = await Content.deleteMany({ type: 'photo' });
 
         return NextResponse.json({
             success: true,
-            message: 'All photos deleted successfully',
+            message: `Deleted ${result.deletedCount} photos`,
             deletedCount: result.deletedCount
         });
     } catch (error: any) {
         console.error('Delete all photos error:', error);
-        return NextResponse.json({
-            error: error.message || 'Error deleting photos'
-        }, { status: 500 });
+        return NextResponse.json({ error: error.message || 'Error deleting photos' }, { status: 500 });
     }
 }

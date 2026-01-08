@@ -31,6 +31,9 @@ export default function VideoCard({ video }: VideoCardProps) {
                     alt={video.title}
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     loading="lazy"
+                    onError={(e) => {
+                        e.currentTarget.src = `https://placehold.co/600x400/1a1a1a/666?text=${encodeURIComponent(video.title.slice(0, 20))}`;
+                    }}
                 />
 
                 {/* Overlay: Duration Badge */}

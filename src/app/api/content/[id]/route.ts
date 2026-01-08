@@ -24,6 +24,8 @@ export async function GET(
     }
 }
 
+export const dynamic = 'force-dynamic';
+
 export async function DELETE(
     req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
@@ -42,7 +44,7 @@ export async function DELETE(
             return NextResponse.json({ error: 'Content not found' }, { status: 404 });
         }
 
-        return NextResponse.json({ success: true, message: 'Content deleted successfully' });
+        return new NextResponse(null, { status: 204 });
     } catch (error: any) {
         console.error('Delete content error:', error);
         return NextResponse.json({ error: error.message || 'Error deleting content' }, { status: 500 });

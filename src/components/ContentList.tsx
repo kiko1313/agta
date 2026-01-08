@@ -127,6 +127,7 @@ export default function ContentList({ initialContent }: ContentListProps) {
                                             src={item.thumbnailUrl || item.url || `https://placehold.co/200x150/1a1a1a/666?text=${encodeURIComponent(item.type)}`}
                                             alt={item.title}
                                             className="w-full h-full object-cover"
+                                            loading="lazy"
                                             onError={(e) => {
                                                 // Fallback if image fails to load
                                                 e.currentTarget.src = `https://placehold.co/200x150/1a1a1a/666?text=${encodeURIComponent(item.type)}`;

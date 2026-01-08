@@ -44,6 +44,11 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'i.ytimg.com',
       },
+      // Uploadthing
+      {
+        protocol: 'https',
+        hostname: 'utfs.io',
+      },
     ],
   },
 };

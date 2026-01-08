@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { cookies, headers } from 'next/headers';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'secret';
+const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXT_PUBLIC_JWT_SECRET || 'secret';
 
 interface TokenPayload {
     username: string;
@@ -9,14 +9,17 @@ interface TokenPayload {
 }
 
 export function signToken(payload: TokenPayload): string {
+    if (!JWT_SECRET) console.warn('Warning: JWT_SECRET is not set');
     return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
 }
 
 export function verifyToken(token: string): TokenPayload | null {
     try {
+        if (!token) return null;
         return jwt.verify(token, JWT_SECRET) as TokenPayload;
     } catch (error) {
-        console.error('Token verification failed:', error);
+        // Only log strict failures, not just expired tokens if we expect them
+        // console.error('Token verification failed:', error);
         return null;
     }
 }
